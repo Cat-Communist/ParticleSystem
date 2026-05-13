@@ -1,57 +1,61 @@
-namespace ParcicleSystem
+using System;
+using System.Security.Cryptography.X509Certificates;
+
+namespace ParticleSystem
 {
     public partial class Form1 : Form
     {
-        List<Particle> particles = new List<Particle>();
+        Emitter emitter;
+
         public Form1()
         {
             InitializeComponent();
 
             picDisplay.Image = new Bitmap(picDisplay.Width, picDisplay.Height);
 
-            for (var i = 0; i < 250; i++)
+            emitter = new TopEmitter
             {
-                var particle = new Particle();
-                particle.x = picDisplay.Image.Width / 2;
-                particle.y = picDisplay.Image.Height / 2;
+                width = picDisplay.Width,
+                GravitationY = 0.25f
+            };
 
-                particles.Add(particle);
-            }
+            emitter.gravityPoints.Add(new Gravity.AntiGravityPoint
+            {
+                x = (float)(picDisplay.Width / 2),
+                y = picDisplay.Height / 2
+            });
+
+            emitter.gravityPoints.Add(new Gravity.GravityPoint
+            {
+                x = (float)(picDisplay.Width * 0.25),
+                y = picDisplay.Height / 2
+            });
+
+            emitter.gravityPoints.Add(new Gravity.GravityPoint
+            {
+                x = (float)(picDisplay.Width * 0.75),
+                y = picDisplay.Height / 2
+            });
         }
 
-        private void UpdateState()
-        {
-            foreach (var particle in particles) 
-            {
-                var directionRadians = particle.direction * Math.PI / 180 ;
-                particle.x += (float)(particle.speed * Math.Cos(directionRadians));
-                particle.y += (float)(particle.speed * Math.Sin(directionRadians));
-            }
-        }
-
-        private void Render(Graphics g)
-        {
-            foreach (var particle in particles)
-            {
-                particle.Draw(g);
-            }
-        }
-
-        int counter = 0;
         private void timer1_Tick(object sender, EventArgs e)
         {
-            counter++;
+            emitter.UpdateState();
 
-            UpdateState();
-
-            using (var g =  Graphics.FromImage(picDisplay.Image))
+            using (var g = Graphics.FromImage(picDisplay.Image))
             {
-                g.Clear(Color.White);
+                g.Clear(Color.Black);
 
-                Render(g);
+                emitter.Render(g);
             }
 
-            picDisplay.Invalidate();    
+            picDisplay.Invalidate();
+        }
+
+        private void picDisplay_MouseMove(object sender, MouseEventArgs e)
+        {
+            emitter.mMousePositionX = e.X;
+            emitter.MousePositionY = e.Y;
         }
     }
 }

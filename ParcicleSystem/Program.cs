@@ -1,4 +1,4 @@
-namespace ParcicleSystem
+namespace ParticleSystem
 {
     internal static class Program
     {
